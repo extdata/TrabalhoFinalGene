@@ -32,13 +32,20 @@ int main()
 	int sizePopulation = 10;
 	int numGenes = 15;
 	int numGenerations = 100;
+	char answer;
 	
 	vector< product > allproduct( 15 );
 	
 	
 	cout << "Programa para calcular o fitness de um gene!\n";
 	
-	while()
+	
+	
+	cout << "Quer fazer uma nova itera" << char() << char() << "o?\n";
+	cout << "Digite s para continuar e n para encerrar!";
+	cin >> answer;
+	
+	while( anwser != n )
 	{
 		srand( ( int ) time( 0 ) );
 		
