@@ -23,7 +23,7 @@ struct individual
 {
 	double fitness;
 	vector< product > fenotipo;
-}
+};
 
 void setallproduct( vector< bool * >  & );
 
@@ -35,12 +35,12 @@ int main()
 	
 	vector< product > allproduct( 15 );
 	
-		
+	
 	cout << "Programa para calcular o fitness de um gene!\n";
 	
 	while()
 	{
-		srand(( int ) time( 0 ));
+		srand( ( int ) time( 0 ) );
 		
 		vector< bool * > population( sizePopulation );
 		
@@ -48,20 +48,20 @@ int main()
 		
 	
 		createPopulation( population, numGenes );
-		print(population, numGenes);		
+		printGenes( population, numGenes);
 		setallproduct( allproduct );
 		
 		for ( int i = 0; i < numGenerations; i++ )
 		{
 			for( n = 0; n < sizePopulation; n++ )
-				 popDecod[ n ].fitness = calcFitness( population[n], numGenes, popDecod[ n ], allproduct )
+				 popDecod[ n ].fitness = calcFitness( population[ n ], numGenes, popDecod[ n ], allproduct )
 		}
 		
-		
+	
 	}
 	
 	
-	//funÃ§Ã£o delete bool[]
+	//função delete bool[]
 }
 
 void setallproduct( vector< product > &allproduct )
@@ -118,17 +118,16 @@ bool generateGene()
 		return false;
 		else return true;
 }
+
 void createPopulation( vector< bool * > &pop, int numGenes )
 {
 	for ( int i = 0; i < pop.size(); i++ )
 	{
 			pop[ i ] =  new bool[ numGenes ];
 			for ( int j = 0; j < numGenes; j++ )
-			     pop[ i ][ j ] = generateGene( );			
+			     pop[ i ][ j ] = generateGene( );
 		
-	}	
-			
-		
+	}
 }
 
 double calcFitness( bool [ ] chrom, int numGenes, individual &ind, vector< product > & allproduct, double Pmax, double Vmax )
@@ -141,14 +140,20 @@ double calcFitness( bool [ ] chrom, int numGenes, individual &ind, vector< produ
 			ind.fenotipo.push_back( allproduct[ i ] );
 			fitness += allproduct[ i ].value / Vmax + Pmax/ allproduct[ i ].weight;
 		}
-			
-			
-		
 }
 
-void print(vector< bool * > &pop, int numGenes)
+void crossoverGenes( )
 {
 	
+}
+
+void mutationGenes( )
+{
+	
+}
+
+void printGenes( vector< bool * > &pop, int numGenes )
+{
 	for ( int i = 0; i < pop.size(); i++ )
 	{
 		for ( int j = 0; j < numGenes; j++ )
@@ -160,5 +165,7 @@ void print(vector< bool * > &pop, int numGenes)
 	}
 }
 
-
-
+void print( )
+{
+	
+}
