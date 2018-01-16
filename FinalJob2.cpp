@@ -40,7 +40,7 @@ int main()
 	vector< bool * > population( sizePopulation );
 	vector< individual > popDecod( sizePopulation );
 		
-	cout << "Programa para calcular o fitness de um gene usando aloca" << char(135) << char(198) << "o din" << char(131) << "mica de mem" << char(162) << "ria!\n";
+	cout << "Programa para calcular o fitness de um gene usando aloca" << char(135) << char(198) << "o din" << char(131) << "mica de mem" << char(162) << "ria!\n\n";
 	
 	int k = 0;
 	while( k < 10 )
@@ -54,12 +54,14 @@ int main()
 		for ( int i = 0; i < numGenerations; i++ )
 			for( int n = 0; n < sizePopulation; n++ )
 			{
-				 calcFitness( population[n], numGenes, popDecod[ n ], allproduct );
+				 calcFitness( population[ n ], numGenes, popDecod[ n ], allproduct );
 				 print( popDecod[ n ] );
 			}
 			
-		delete [ ] ;
-		
+		//for( int n = 0; n < pop.size(); n++ )
+		//{
+		//	delete [ ] pop[ n ];
+		//}
 	}
 }
 
@@ -126,13 +128,18 @@ void createPopulation( vector< bool * > &pop, int numGenes )
 			for ( int j = 0; j < numGenes; j++ )
 			     pop[ i ][ j ] = generateGene( );
 	}
+	
+	for( int n = 0; n < pop.size(); n++ )
+		{
+			delete [ ] pop[ n ];
+		}
 }
 
 double calcFitness( bool chrom [ ], int numGenes, individual &ind, vector< product > & allproduct )
 {
 	ind.fitness = 0;
 	
-	cout << "N" << char(163) << "mero de genes gerado:  " << numGenes << '\n'; 
+	cout << "N" << char(163) << "mero de genes gerado:  " << numGenes << "\n\n"; 
 	print( chrom, numGenes );
 	
 	for( int i = 0; i < numGenes; i++ )
@@ -140,7 +147,7 @@ double calcFitness( bool chrom [ ], int numGenes, individual &ind, vector< produ
 		{
 			ind.fenotipo.push_back( allproduct[ i ] );
 			
-			cout << "C" << char(160) << "lculo do Fitness do indiv" << char(161) << "duo!\n";
+			cout << "C" << char(160) << "lculo do Fitness do indiv" << char(161) << "duo!\n\n";
 			
 			print( ind.fenotipo[ ind.fenotipo.size( ) - 1 ] );
 			
@@ -154,7 +161,7 @@ double calcFitness( bool chrom [ ], int numGenes, individual &ind, vector< produ
 			
 			ind.fitness += allproduct[ i ].value + 1 / allproduct[ i ].weight;
 			
-			cout << "Fitness do indiv" << char() << "duo: " << ind.fitness << '\n';
+			cout << "Fitness do indiv" << char(161) << "duo: " << ind.fitness << "\n\n";
 		}
 		
 }
@@ -167,7 +174,7 @@ void print(vector< bool * > &pop, int numGenes)
 
 void print( const individual &ind )
 {
-	cout << "Fitness = " << ind.fitness << '\n';
+	cout << "Fitness = " << ind.fitness << "\n\n";
 	
 	for( int i = 0; i < ind.fenotipo.size( ); i++ )
 	{
@@ -177,7 +184,7 @@ void print( const individual &ind )
 
 void print( const product &prod )
 {
-	cout << "Peso: " << prod.weight << '\t' << "Valor: " << prod.value << '\n'; 
+	cout << "Peso: " << prod.weight << '\t' << "Valor: " << prod.value << "\n\n"; 
 }
 
 void print( const bool chr [ ], int  numGenes )
