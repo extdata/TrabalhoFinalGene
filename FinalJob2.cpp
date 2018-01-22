@@ -27,31 +27,29 @@ void print( const product & );
 void print( const bool [ ], int );
 bool generateGene( );
 void selectInd( vector< individual > &, vector< int > &,  int, bool = true );
-void crossGene( bool [ ], bool [ ], int, int );
-void mutateGene( bool [ ], int, int );
+void crossover( vector< bool * > &, const vector< bool * > &, const vector< int > &, int , int );
+void mutation( vector< bool * > &, int , int );
 int getBestFitness( vector< individual > & );
 void createPopulation( vector< bool * > &, int );
 void calcFitness( bool [ ], int, individual &, vector< product > & );
 void setallproduct( vector< product > & );
 
 
-
 int main()
 {
-	//Enable test of functions
-	bool testingselectInd = false;
-	
-	
-	
 	int mutationRate = 10;
 	int ring = 3;
 	int sizePopulation = 4;
 	int numGenes = 5;
-	int numGenerations = 10;	
+	int numGenerations = 10;
+	int crossoverRate = 80;	
 	vector< product > allproduct( 15 );
 	vector< bool * > population( sizePopulation );
+	vector< bool * > populationSelected( sizePopulation );
 	vector< individual > popDecod( sizePopulation );
 	vector< int > selectedIndividuals( sizePopulation );
+	const double MAXWEIGHT = 10000; //getMaxWeight( allproduct );
+	const double MAXVALUE = 1000; //getMaxWeight( allproduct );
 		
 	cout << "Programa para calcular o fitness de um gene usando aloca" << char(135) << char(198) << "o din" << char(131) << "mica de mem" << char(162) << "ria!\n\n";
 	
@@ -68,36 +66,40 @@ int main()
 		print(population, numGenes);
 		setallproduct( allproduct );
 		
-		cout << "\nSele" << char(135) << char(198) << "o, crusamento, e muta" << char(135) << char(198) << "o dos genes!\n";
-		
-		for( int n = 0; n < sizePopulation; n++ )
-		{
-			 calcFitness( population[ n ], numGenes, popDecod[ n ], allproduct );
-		}
-		
-		for ( int i = 0; i < numGenerations; i++ )
-		{
-			cout << "\nIniciando processo de sele" << char(135) << char(198) << "o\n\n";
-			print( popDecod, false );
-			selectInd( popDecod, selectedIndividuals, ring, testingselectInd  );
-		//	cout << "Iniciando o processo de cruzamento\n";
-		//	crossGene( popDecod, selectedIndividuals, numGenes, cutPoint );
-		//	cout << "Iniciando o processo de mutacao\n";
-		//	mutateGene( popDecod, numGenes, mutationRate );
-			
-			for( int n = 0; n < sizePopulation; n++ )
-			{
-				 calcFitness( population[ n ], numGenes, popDecod[ n ], allproduct );
-			}
-			
-			cout << "Gera" << char(135) << char(198) << "o " << i + 1 << '\t' << "Melhor fitness: " << popDecod[ getBestFitness( popDecod ) ].fitness << '\n';
-			cout << "\n=========================================\n";
-		}
-		
-		for( unsigned int n = 0; n < population.size( ); n++ )
-		{
-			delete [ ] population[ n ];
-		}
+//		cout << "\nSele" << char(135) << char(198) << "o, crusamento, e muta" << char(135) << char(198) << "o dos genes!\n";
+//		
+//		for( int n = 0; n < sizePopulation; n++ )
+//		{
+//			 calcFitness( population[ n ], numGenes, popDecod[ n ], allproduct );
+//		}
+//		
+//		for ( int i = 0; i < numGenerations; i++ )
+//		{
+//			cout << "\nIniciando processo de sele" << char(135) << char(198) << "o\n\n";
+//			print( popDecod, false );
+//			selectInd( popDecod, selectedIndividuals, ring );
+//			cout << "Iniciando o processo de cruzamento\n";
+//			crossover( populationSelected, population, selectedIndividuals, numGenes, crossoverRate );
+//			cout << "Iniciando o processo de mutacao\n";
+//			mutation( populationSelected, numGenes, mutationRate );
+//			
+//			for( int i = 0; i < population.size( ); i++ )
+//			{
+//				*population[ i ] = *populationSelected[ i ];
+//				calcFitness( population[ i ], numGenes, popDecod[ i ], allproduct );
+//				
+//				delete [ ] populationSelected[ i ];
+//				populationSelected[ i ] = 0;
+//			}
+//			
+//			//cout << "Gera" << char(135) << char(198) << "o " << i << '\t' << "Melhor fitness: " << popDecod[ getBestFitness( popDecod ) ].fitness << '\n';
+//			cout << "\n=========================================\n";
+//		}
+//		
+//		for( unsigned int n = 0; n < population.size( ); n++ )
+//		{
+//			delete [ ] population[ n ];
+//		}
 	}
 }
 
@@ -153,9 +155,9 @@ void createPopulation( vector< bool * > &pop, int numGenes )
 {
 	for ( unsigned int i = 0; i < pop.size( ); i++ )
 	{
-			pop[ i ] =  new bool[ numGenes ];
-			for ( int j = 0; j < numGenes; j++ )
-				pop[ i ][ j ] = generateGene( );
+		pop[ i ] =  new bool[ numGenes ];
+		for ( int j = 0; j < numGenes; j++ )
+			pop[ i ][ j ] = generateGene( );
 	}
 }
 
@@ -166,9 +168,8 @@ bool generateGene()
 		else return true;
 }
 
-void selectInd( vector< individual > &popDecod, vector< int > &selectedIndividuals,  int ring, bool isTesting )
+void selectInd( vector< individual > &popDecod, vector< int > &selectedIndividuals,  int ring )
 {
-	int test;
 	int n;
 	unsigned int winner;
 	unsigned int competitor;
@@ -178,78 +179,65 @@ void selectInd( vector< individual > &popDecod, vector< int > &selectedIndividua
 			winner = rand( ) % popDecod.size( );			
 			while( n > 0 )
 			{	
-				if( isTesting )
-				{
-					cout << "Ganhador at" << char(130) << " aqui " << winner << '\t' << "Seu fitness " << popDecod[ winner ].fitness << '\n';
-					cout << "Disputa " << n << '\n';
-				}
 				competitor = rand( ) % popDecod.size( );
-				if( isTesting )
-				{
-					cout << "Competidor " << competitor << '\t' << "Seu fitness " << popDecod[ competitor ].fitness << '\n';
-					cin >> test;
-				}
+				
 				if( popDecod[ competitor ].fitness > popDecod[ winner ].fitness )
 				{
 					winner = competitor;
-					if( isTesting ) 
-					{
-						cout << "Competidor ganhou\n";
-						cin >> test;
-					}
-				}
-				else 
-				{
-					if( isTesting ) 
-					{
-						cout << "Competidor perdeu\n";				
-						if( isTesting ) cin >> test;
-					}
 				}
 				
 				n--;
 			}
 			
 			selectedIndividuals[ i ] = winner;
-			
-			if( isTesting )
-			{
-				cout << "\n\nSelecionados at" << char(130) << " aqui \n";
-				for( unsigned int k = 0; k <= i; k++ )
-					cout << selectedIndividuals[ k ] << '\t';
-				
-				cout << "\n\n\n\n";
-			}
 		}
 }
 
-void crossGene( bool ind1 [ ], bool ind2 [ ], int  numGenes, int cutPoint  )
+
+void crossover( vector< bool * > &popSel, const vector< bool * > &pop, const vector< int > &selectedIndividuals, int numGenes, int crossoverRate )
 {
 	bool temp;
+	unsigned int cutPoint;
 	
-	if ( rand( ) % 100 + 1 < cutPoint )
+	if ( rand( ) % 100 + 1 < crossoverRate )
+		cutPoint = rand( ) % numGenes + 1;
+	else
+		cutPoint = pop.size( );
+	
+	
+	for( int i = 0; i < pop.size( ); i += 2 )
+	{
+		popSel[ i ]     =  new bool[ numGenes ];
+		popSel[ i + 1 ] =  new bool[ numGenes ];
+		for ( int j = 0; j < numGenes; j++ )
 		{
-			cutPoint = rand( ) % numGenes + 1;
-			
-			for ( int i = cutPoint; i < numGenes; i++ )
-				{
-					temp = ind1[ i ];
-					ind1[ i ] = ind2[ i ];
-					ind2[ i ] = temp;
-				}
+			if( j < cutPoint )
+			{
+				popSel[ i ][ j ] = pop[ selectedIndividuals[ i ] ];
+				popSel[ i + 1 ][ j ] = pop[ selectedIndividuals[ i + 1 ] ];
+			}
+			else
+			{
+				popSel[ i ][ j ] = pop[ selectedIndividuals[ i + 1 ] ];
+				popSel[ i + 1 ][ j ] = pop[ selectedIndividuals[ i ] ];
+			}
 		}
+	}
 }
 
-void mutateGene( bool chr [ ], int  numGenes, int mutationRate )
+void mutation( vector< bool * > &popSel, int numGenes, int mutationRate )
 {
-	for ( int i = 0; i < numGenes; i++ )
-		if ( rand( ) % 100 + 1 < mutationRate )
-		{
-			if ( chr[ i ] )
-				chr[ i ] = false;
-			else
-				chr[ i ] = true;
-		}
+	for( int i = 0; i < popSel.size( ); i++ )
+	{
+		for ( int j = 0; j < numGenes; j++ )
+			if ( rand( ) % 100 + 1 < mutationRate )
+			{
+				if ( popSel[ i ][ j ] )
+					popSel[ i ][ j ] = false;
+				else
+					popSel[ i ][ j ] = true;
+			}
+	}
 }
 
 int getBestFitness( vector< individual > & popDecod )
@@ -262,7 +250,7 @@ int getBestFitness( vector< individual > & popDecod )
 	return indexBest;
 }
 
-void calcFitness( bool chrom [ ], int numGenes, individual &ind, vector< product > & allproduct )
+void calcFitness( bool chrom [ ], int numGenes, individual &ind, vector< product > & allproduct, const double MAXWEIGHT, const double MAXVALUE )
 {
 	ind.fitness = 0;
 	
@@ -277,7 +265,7 @@ void calcFitness( bool chrom [ ], int numGenes, individual &ind, vector< product
 				cin >> allproduct[ i ].weight;
 			}
 			
-			ind.fitness += allproduct[ i ].value + 1 / allproduct[ i ].weight;
+			ind.fitness += allproduct[ i ].value/MAXVALUE + MAXWEIGHT/allproduct[ i ].weight;
 		}
 }
 
@@ -311,10 +299,8 @@ void print( const bool chr [ ], int  numGenes )
 		cout << "\n";
 }
 
-
 void print( const vector< individual > &popDecod, bool isPrintFenotipo )
 {
 	for ( unsigned int i = 0; i < popDecod.size( ); i++ )
-		print( popDecod[ i ], i,  isPrintFenotipo);
-		
+		print( popDecod[ i ], i,  isPrintFenotipo);	
 }
